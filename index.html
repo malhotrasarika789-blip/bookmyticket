@@ -109,7 +109,15 @@
               const name = prompt("Enter your name");
               if (!name) return;
 
-              const res = await fetch(`/${id}/${name}`, { method: "PUT" });
+              const token = localStorage.getItem("token");
+
+              const res = await fetch(`/${id}/${name}`, { 
+                method: "PUT",
+                headers: {
+                  "Authorization":`Bearer ${token}`
+                }
+              });
+              
               const data = await res.json();
 
               if (data.error) {
