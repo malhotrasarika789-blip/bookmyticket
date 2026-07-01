@@ -5,7 +5,7 @@ Users can register, login, and book cinema seats in real-time with secure authen
 
 ## 🚀 Live Demo
 👉 Backend URL:  
- https://render.com/docs/web-services#port-binding
+https://bookmyticket-5qxx.onrender.com
 
 ## ✨ Features
 
