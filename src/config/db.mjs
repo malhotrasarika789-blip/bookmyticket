@@ -6,8 +6,8 @@ dotenv.config();
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false
-  }
+    rejectUnauthorized: false,
+  },
 });
 
 console.log("DB connected successfully.");
@@ -27,16 +27,38 @@ const initializeDatabase = async () => {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS bookings (
         id SERIAL PRIMARY KEY,
-        user_id INT,
+        user_id INT REFERENCES users(id) ON DELETE CASCADE,
         movie_id INT DEFAULT 1,
         seat_number INT NOT NULL,
         tier VARCHAR(50) NOT NULL,
-        price DECIMAL(10, 2) NOT NULL,
+        price DECIMAL(10,2) NOT NULL,
         booked_by VARCHAR(100),
         booked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        CONSTRAINT unique_movie_seat UNIQUE (movie_id, seat_number)
+        CONSTRAINT unique_movie_seat UNIQUE(movie_id, seat_number)
       );
     `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS seats (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255),
+        isbooked INT DEFAULT 0
+      );
+    `);
+
+    const seatCount = await pool.query(
+      "SELECT COUNT(*) AS count FROM seats"
+    );
+
+    if (parseInt(seatCount.rows[0].count) === 0) {
+      await pool.query(`
+        INSERT INTO seats (isbooked)
+        SELECT 0
+        FROM generate_series(1,20);
+      `);
+
+      console.log("20 seats inserted successfully.");
+    }
 
     console.log("Database initialized successfully.");
   } catch (error) {
